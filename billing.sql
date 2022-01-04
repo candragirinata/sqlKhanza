@@ -68,5 +68,20 @@ union all
 
 select detail_pemberian_obat.no_rawat,pasien.nm_pasien,databarang.nama_brng,detail_pemberian_obat.tgl_perawatan,detail_pemberian_obat.totalfrom detail_pemberian_obat inner join reg_periksa inner join pasien inner join databarang on detail_pemberian_obat.no_rawat=reg_periksa.no_rawat and reg_periksa.no_rkm_medis=pasien.no_rkm_medis and detail_pemberian_obat.kode_brng=databarang.kode_brng 
 where detail_pemberian_obat.no_rawat ='2021/06/21/055858'
+union all
 
+select rp.no_rawat ,p.nm_pasien,'Biaya Registrasi',rp.tgl_registrasi,rp.biaya_reg from reg_periksa rp inner join pasien p on rp.no_rkm_medis = p.no_rkm_medis where rp.no_rawat = '2021/06/21/055858'
 
+union all
+
+select kamar_inap.no_rawat,concat ('(',bangsal.nm_bangsal,') X ',kamar_inap.lama)as nama_perawatan,kamar_inap.ttl_biaya as total,kamar_inap.tgl_masuk, kamar_inap.jam_masuk,if(kamar_inap.tgl_keluar='0000-00-00',current_date(),kamar_inap.tgl_keluar) as tgl_keluar,if(kamar_inap.jam_keluar='00:00:00',current_time(),kamar_inap.jam_keluar) as jam_keluar from kamar_inap 
+inner join bangsal inner join kamar on kamar_inap.kd_kamar=kamar.kd_kamar and kamar.kd_bangsal=bangsal.kd_bangsal
+where kamar_inap.no_rawat='2021/06/21/055858'
+
+where  
+
+select * FROM kamar_inap ki 
+
+select * from pasisen 
+
+select * from reg_periksa rp 
