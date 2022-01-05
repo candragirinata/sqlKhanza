@@ -74,14 +74,7 @@ select rp.no_rawat ,p.nm_pasien,'Biaya Registrasi',rp.tgl_registrasi,rp.biaya_re
 
 union all
 
-select kamar_inap.no_rawat,concat ('(',bangsal.nm_bangsal,') X ',kamar_inap.lama)as nama_perawatan,kamar_inap.ttl_biaya as total,kamar_inap.tgl_masuk, kamar_inap.jam_masuk,if(kamar_inap.tgl_keluar='0000-00-00',current_date(),kamar_inap.tgl_keluar) as tgl_keluar,if(kamar_inap.jam_keluar='00:00:00',current_time(),kamar_inap.jam_keluar) as jam_keluar from kamar_inap 
+select kamar_inap.no_rawat,'',concat ('(',bangsal.nm_bangsal,') * ',kamar_inap.lama)as nama_perawatan,kamar_inap.ttl_biaya as total,kamar_inap.tgl_masukfrom kamar_inap 
 inner join bangsal inner join kamar on kamar_inap.kd_kamar=kamar.kd_kamar and kamar.kd_bangsal=bangsal.kd_bangsal
 where kamar_inap.no_rawat='2021/06/21/055858'
 
-where  
-
-select * FROM kamar_inap ki 
-
-select * from pasisen 
-
-select * from reg_periksa rp 
