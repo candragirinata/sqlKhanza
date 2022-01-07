@@ -66,19 +66,24 @@ where operasi.no_rawat ='2021/06/21/055858'
 union all
 -- *****************************seleksi 5 kolom obat & BHP **************************************************
 
-select detail_pemberian_obat.no_rawat,pasien.nm_pasien,databarang.nama_brng,detail_pemberian_obat.tgl_perawatan,detail_pemberian_obat.totalfrom detail_pemberian_obat inner join reg_periksa inner join pasien inner join databarang on detail_pemberian_obat.no_rawat=reg_periksa.no_rawat and reg_periksa.no_rkm_medis=pasien.no_rkm_medis and detail_pemberian_obat.kode_brng=databarang.kode_brng 
-where detail_pemberian_obat.no_rawat ='2021/06/21/055858'
-union all
+select detail_pemberian_obat.no_rawat,pasien.nm_pasien,
+databarang.nama_brng,detail_pemberian_obat.tgl_perawatan,detail_pemberian_obat.totalfrom detail_pemberian_obat inner join reg_periksa inner join pasien inner join databarang on detail_pemberian_obat.no_rawat=reg_periksa.no_rawat and reg_periksa.no_rkm_medis=pasien.no_rkm_medis and detail_pemberian_obat.kode_brng=databarang.kode_brng where detail_pemberian_obat.no_rawat ='2021/06/21/055858'
+union all
+-- *****************************reistrasi**************************************************
 
 select rp.no_rawat ,p.nm_pasien,'Biaya Registrasi',rp.tgl_registrasi,rp.biaya_reg from reg_periksa rp inner join pasien p on rp.no_rkm_medis = p.no_rkm_medis where rp.no_rawat = '2021/06/21/055858'
 
 union all
-
-select kamar_inap.no_rawat,'',concat ('(',bangsal.nm_bangsal,') * ',kamar_inap.lama)as nama_perawatan,kamar_inap.tgl_masuk,kamar_inap.ttl_biaya as totalfrom kamar_inap 
-inner join bangsal inner join kamar on kamar_inap.kd_kamar=kamar.kd_kamar and kamar.kd_bangsal=bangsal.kd_bangsal
+-- ********************************************************************************** kamar*****************************************
+select kamar_inap.no_rawat,'ssssssss',concat ('(',bangsal.nm_bangsal,') * ',kamar_inap.lama)as nama_perawatan,kamar_inap.tgl_masuk,kamar_inap.ttl_biaya as total
+from kamar_inap inner join bangsal inner join kamar on kamar_inap.kd_kamar=kamar.kd_kamar 
+and kamar.kd_bangsal=bangsal.kd_bangsal
 where kamar_inap.no_rawat='2021/06/21/055858'
 
 
 order by tgl_perawatan
+
+-- **********************************************************************************nama kamar*****************************************
+select reg_periksa.no_rkm_medis,concat(DATE_FORMAT(reg_periksa.tgl_registrasi, '%e %M %Y'),' ',reg_periksa.jam_reg) as registrasi,kamar_inap.kd_kamar,concat(if(kamar_inap.tgl_keluar='0000-00-00',DATE_FORMAT(CURDATE(), '%e %M %Y'),DATE_FORMAT(kamar_inap.tgl_keluar, '%e %M %Y')),' ',kamar_inap.jam_keluar) as keluar,  (select sum(kamar_inap.lama) from kamar_inap where kamar_inap.no_rawat=reg_periksa.no_rawat ) as lama,reg_periksa.biaya_reg,reg_periksa.umurdaftar,reg_periksa.sttsumur,reg_periksa.tgl_registrasi from reg_periksa inner join kamar_inap on reg_periksa.no_rawat=kamar_inap.no_rawat where reg_periksa.no_rawat = '2021/06/21/055858'
 
 
