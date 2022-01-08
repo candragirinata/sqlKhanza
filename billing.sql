@@ -84,6 +84,12 @@ where kamar_inap.no_rawat='2021/06/21/055858'
 order by tgl_perawatan
 
 -- **********************************************************************************nama kamar*****************************************
-select reg_periksa.no_rkm_medis,concat(DATE_FORMAT(reg_periksa.tgl_registrasi, '%e %M %Y'),' ',reg_periksa.jam_reg) as registrasi,kamar_inap.kd_kamar,concat(if(kamar_inap.tgl_keluar='0000-00-00',DATE_FORMAT(CURDATE(), '%e %M %Y'),DATE_FORMAT(kamar_inap.tgl_keluar, '%e %M %Y')),' ',kamar_inap.jam_keluar) as keluar,  (select sum(kamar_inap.lama) from kamar_inap where kamar_inap.no_rawat=reg_periksa.no_rawat ) as lama,reg_periksa.biaya_reg,reg_periksa.umurdaftar,reg_periksa.sttsumur,reg_periksa.tgl_registrasi from reg_periksa inner join kamar_inap on reg_periksa.no_rawat=kamar_inap.no_rawat where reg_periksa.no_rawat = '2021/06/21/055858'
+-- select reg_periksa.no_rkm_medis,concat(DATE_FORMAT(reg_periksa.tgl_registrasi, '%e %M %Y'),' ',reg_periksa.jam_reg) as registrasi,kamar_inap.kd_kamar,concat(if(kamar_inap.tgl_keluar='0000-00-00',DATE_FORMAT(CURDATE(), '%e %M %Y'),DATE_FORMAT(kamar_inap.tgl_keluar, '%e %M %Y')),' ',kamar_inap.jam_keluar) as keluar,  
+-- (select sum(kamar_inap.lama) from kamar_inap where kamar_inap.no_rawat=reg_periksa.no_rawat ) as lama,reg_periksa.biaya_reg,reg_periksa.umurdaftar,reg_periksa.sttsumur,reg_periksa.tgl_registrasi -- from reg_periksa inner join kamar_inap on reg_periksa.no_rawat=kamar_inap.no_rawat where reg_periksa.no_rawat = '2021/06/21/055858'-- 
 
 
+
+-- **********************************************************************************pembayaran CASH*****************************************
+select no_nota,tgl_bayar,nama_pasien,jumlah_bayar,petugas from tagihan_sadewa where no_nota ='2021/07/20/788879'
+
+select no_rawat from detail_piutang_pasien
