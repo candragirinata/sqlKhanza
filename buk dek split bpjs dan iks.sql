@@ -203,3 +203,14 @@ where kamar_inap.no_rawat='2022/01/05/045887'
 
 order by tgl_perawatan
 ) as giri
+
+
+select rawat_inap_pr.no_rawat,pasien.nm_pasien,jns_perawatan_inap.nm_perawatan,
+rawat_inap_pr.tgl_perawatan,rawat_inap_pr.biaya_rawat
+from pasien inner join reg_periksa inner join jns_perawatan_inap inner join 
+petugas inner join rawat_inap_pr 
+on rawat_inap_pr.no_rawat=reg_periksa.no_rawat 
+and reg_periksa.no_rkm_medis=pasien.no_rkm_medis 
+and rawat_inap_pr.kd_jenis_prw=jns_perawatan_inap.kd_jenis_prw 
+and rawat_inap_pr.nip=petugas.nip 
+where rawat_inap_pr.no_rawat = '2022/01/13/000130'

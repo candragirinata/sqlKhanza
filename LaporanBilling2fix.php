@@ -1,6 +1,17 @@
 <?php
 include '../conf/conf.php';
-?>
+//  if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')   
+//         $url = "https://";   
+//    else  
+//         $url = "http://";   
+//    // Append the host(domain name, ip) to the URL.   
+//    $url.= $_SERVER['HTTP_HOST'];   
+//    
+//    // Append the requested resource location to the URL   
+//    $url.= $_SERVER['REQUEST_URI'];    
+//      
+////    echo $url;          
+//?>
 <html>
 
     <head>
@@ -18,16 +29,22 @@ include '../conf/conf.php';
                 window.print();
             }
         </script>
+   
 
         <?php
-        reportsqlinjection();
+//        reportsqlinjection();
         $petugas = str_replace("_", " ", $_GET['petugas']);
         $tanggal = str_replace("_", " ", $_GET['tanggal']);
+        $norawat = str_replace("_", " ", $_GET['nrwt']);
         $tanggalkeluar = substr($tanggal, 0, 11);
         $nonota = str_replace(": ", "", getOne("select temp2 from temporary_bayar_ranap where temp1='No.Nota'"));
-        $noRM= str_replace(": ", "", getOne("select temp2 from temporary_bayar_ranap where temp1='No.R.M.'"));
+        $noRM = str_replace(": ", "", getOne("select temp2 from temporary_bayar_ranap where temp1='No.R.M.'"));
 //        $norawat = getOne("select no_rawat from nota_inap where no_nota='$nonota'");
-        $norawat = getOne("select no_rawat from reg_periksa rp inner join pasien p  on rp.no_rkm_medis = p.no_rkm_medis where rp.no_rkm_medis ='$noRM'  ORDER BY rp.no_rawat DESC LIMIT 1");
+
+//var_dump($rwt);
+
+ 
+//        $norawat = getOne("select ?no_rawat from reg_periksa rp inner join pasien p  on rp.no_rkm_medis = p.no_rkm_medis where rp.no_rkm_medis ='$noRM'  ORDER BY rp.no_rawat DESC LIMIT 1");
         $kodecarabayar = getOne("select kd_pj from reg_periksa where no_rawat='$norawat'");
         $carabayar = getOne("select png_jawab from penjab where kd_pj='$kodecarabayar'");
         $namapx = getOne("select p.nm_pasien from reg_periksa rp inner join pasien p on rp.no_rkm_medis=p.no_rkm_medis where no_rawat = '$norawat'");
@@ -153,9 +170,9 @@ inner join reg_periksa on operasi.no_rawat=reg_periksa.no_rawat
 inner join pasien on reg_periksa.no_rkm_medis=pasien.no_rkm_medis 
 where operasi.no_rawat ='$norawat' order by tgl_operasi";
 
-
         $hasil = bukaquery($_sql);
-        if (mysqli_num_rows($hasil) != 0) {
+//        var_dump($hasil);
+        if (mysqli_num_rows($hasil) >= 0) {
             $setting = mysqli_fetch_array(bukaquery("select nama_instansi,alamat_instansi,kabupaten,propinsi,kontak,email,logo from setting"));
             echo "   
             <table width='" . getOne("select nota1ranap from set_nota") . "' bgcolor='#ffffff' align='left' border='0' padding='0' cellspacing='0' cellpadding='0'>
@@ -470,17 +487,8 @@ where operasi.no_rawat ='$norawat' order by tgl_operasi";
             }
 //  *************************************************************************************************IKS& TOTAL PEMBAYARAN**********************************************************************************
 
-            $cekBayar=getOne("select count(no_rawat) from reg_periksa rp where no_rawat='$norawat' and status_bayar ='Belum Bayar'");
-            $uangmuka=getOne("select ifnull(sum(besar_deposit),0) from deposit where no_rawat='$norawat'");
-            if ($cekBayar==1){
-            echo "<tr>
-              <td colspan='7' padding='0'>
-               <hr/>
-                <center><font color='333333' size='1'  face='Tahoma'>--------------------------Perkiraan Tagihan-----------------------------</font> </center>
-                <hr/>
-              </td>
-            </tr>";
-            
+            $cekBayar = getOne("select count(no_rawat) from reg_periksa rp where no_rawat='$norawat' and status_bayar ='Belum Bayar'");
+            $uangmuka = getOne("select ifnull(sum(besar_deposit),0) from deposit where no_rawat='$norawat'");
             $perkiraanTagihan = getOne("select sum(biaya_rawat)as jumlah from(
 -- *****************************seleksi kolom tindakan ranap**************************************************
 
@@ -621,23 +629,44 @@ where kamar_inap.no_rawat='$norawat'
 
 order by tgl_perawatan
 ) as gr");
-            
-            echo "<table width='100%' bgcolor='#ffffff' align='left' border='0' cellspacing='0' cellpadding='0'>
-                         <tr class='isi12' padding='0'>
-                                <td padding='0' width='8%'><font color='#ffffff' size='1'  face='Tahoma'>&nbsp;&nbsp;</td> 
-                                <td padding='0'><font color='111111' size='3'  face='Tahoma'>$carabayar</td> 
-                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Rp. " . number_format($perkiraanTagihan-$uangmuka) . "</td> 
-                              </tr>
-                              </table>";
-            
-            }else{
-            
-            $_sql1 = "select * from detail_piutang_pasien where no_rawat = '$norawat'";
-            $hasil1 = bukaquery($_sql1);
-            $_sql_CASH = "select no_nota,tgl_bayar,nama_pasien,jumlah_bayar,petugas from tagihan_sadewa where no_nota ='$norawat'";
-            $totalCASHbayar = bukaquery($_sql_CASH);
+            if ($cekBayar == 1) {
+                echo "<tr>
+              <td colspan='7' padding='0'>
+               <hr/>
+                <center><font color='333333' size='1'  face='Tahoma'>--------------------------Perkiraan Tagihan-----------------------------</font> </center>
+                <hr/>
+              </td>
+            </tr>";
 
-            echo "<tr>
+
+                echo "<table width='100%' bgcolor='#ffffff' align='left' border='0' cellspacing='0' cellpadding='0'>
+                        <tr class='isi12' padding='0'>
+                                <td padding='0' width='8%'><font color='#ffffff' size='1'  face='Tahoma'>&nbsp;&nbsp;</td> 
+                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Total Tagihan </td> 
+                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Rp. " . number_format($perkiraanTagihan) . "</td> 
+                        </tr>
+                        <tr class='isi12' padding='0'>
+                                <td padding='0' width='8%'><font color='#ffffff' size='1'  face='Tahoma'>&nbsp;&nbsp;</td> 
+                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Uang Muka</td> 
+                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Rp. " . number_format($uangmuka) . "</td>
+                        </tr>
+                        </table>
+                        <table width='100%' bgcolor='#ffffff' align='left' border='0' cellspacing='0' cellpadding='0'>
+                        <tr>***********************************************************************</tr>
+                        <tr class='isi12' padding='0'>
+                                <td padding='0' width='8%'><font color='#ffffff' size='1'  face='Tahoma'>&nbsp;&nbsp;</td> 
+                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Sisa Tagihan </td> 
+                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Rp. " . number_format($perkiraanTagihan - $uangmuka) . "</td> 
+                        </tr>
+                              </table>";
+            } else {
+
+                $_sql1 = "select * from detail_piutang_pasien where no_rawat = '$norawat'";
+                $hasil1 = bukaquery($_sql1);
+                $_sql_CASH = "select no_nota,tgl_bayar,nama_pasien,jumlah_bayar,petugas from tagihan_sadewa where no_nota ='$norawat'";
+                $totalCASHbayar = bukaquery($_sql_CASH);
+
+                echo "<tr>
               <td colspan='7' padding='0'>
                <hr/>
                 <center><font color='333333' size='1'  face='Tahoma'>--------------------------Total Tagihan-----------------------------</font> </center>
@@ -645,21 +674,42 @@ order by tgl_perawatan
               </td>
             </tr>";
 
-            $sw = getOne("select count(no_rawat) from detail_piutang_pasien where no_rawat='$norawat'");
-            switch ($sw) {
-                case "0":
-                    while ($cashf = mysqli_fetch_array($totalCASHbayar)) {
-                        echo "<table width='100%' bgcolor='#ffffff' align='left' border='0' cellspacing='0' cellpadding='0'>
-                         <tr class='isi12' padding='0'>
+                $sw = getOne("select count(no_rawat) from detail_piutang_pasien where no_rawat='$norawat'");
+                switch ($sw) {
+                    case "0":
+                        while ($cashf = mysqli_fetch_array($totalCASHbayar)) {
+//                            echo "<table width='100%' bgcolor='#ffffff' align='left' border='0' cellspacing='0' cellpadding='0'>
+//                         <tr class='isi12' padding='0'>
+//                                <td padding='0' width='8%'><font color='#ffffff' size='1'  face='Tahoma'>&nbsp;&nbsp;</td> 
+//                                <td padding='0'><font color='111111' size='3'  face='Tahoma'>UMUM</td> 
+//                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Rp. " . number_format($cashf[3]) . "</td> 
+//                              </tr>
+//                              </table>";
+
+                            echo "<table width='100%' bgcolor='#ffffff' align='left' border='0' cellspacing='0' cellpadding='0'>
+                        <tr class='isi12' padding='0'>
                                 <td padding='0' width='8%'><font color='#ffffff' size='1'  face='Tahoma'>&nbsp;&nbsp;</td> 
-                                <td padding='0'><font color='111111' size='3'  face='Tahoma'>UMUM</td> 
-                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Rp. " . number_format($cashf[3]) . "</td> 
-                              </tr>
+                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Total Tagihan </td> 
+                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Rp. " . number_format($perkiraanTagihan) . "</td> 
+                        </tr>
+                        <tr class='isi12' padding='0'>
+                                <td padding='0' width='8%'><font color='#ffffff' size='1'  face='Tahoma'>&nbsp;&nbsp;</td> 
+                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Uang Muka</td> 
+                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Rp. " . number_format($uangmuka) . "</td>
+                        </tr>
+                        </table>
+                        <table width='100%' bgcolor='#ffffff' align='left' border='0' cellspacing='0' cellpadding='0'>
+                        <tr>***********************************************************************</tr>
+                        <tr class='isi12' padding='0'>
+                                <td padding='0' width='8%'><font color='#ffffff' size='1'  face='Tahoma'>&nbsp;&nbsp;</td> 
+                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Sisa Tagihan </td> 
+                                <td padding='0' width='40%' align='left'><font color='111111' size='3'  face='Tahoma'>Rp. " . number_format($perkiraanTagihan - $uangmuka) . "</td> 
+                        </tr>
                               </table>";
-                    }
-                    break ;
-                default :
-                    echo "<table width='100%' bgcolor='#ffffff' align='left' border='0' cellspacing='0' cellpadding='0'>
+                        }
+                        break;
+                    default :
+                        echo "<table width='100%' bgcolor='#ffffff' align='left' border='0' cellspacing='0' cellpadding='0'>
                     <tr class='isi2' padding='0'>
                          <td padding='0' width='8%'><font color='#ffffff' size='1'  face='Tahoma'>&nbsp;&nbsp;</td> 
                          <td padding='0'><font color='111111' size='1'  face='Tahoma'>Nama IKS<hr/></td> 
@@ -668,9 +718,9 @@ order by tgl_perawatan
                          
                         </tr>
                         </table>";
-                    while ($inapdrpasien = mysqli_fetch_array($hasil1)) {
+                        while ($inapdrpasien = mysqli_fetch_array($hasil1)) {
 
-                        echo "<table width='100%' bgcolor='#ffffff' align='left' border='0' cellspacing='0' cellpadding='0'>
+                            echo "<table width='100%' bgcolor='#ffffff' align='left' border='0' cellspacing='0' cellpadding='0'>
                          <tr class='isi12' padding='0'>
                                 <td padding='0' width='8%'><font color='#ffffff' size='1'  face='Tahoma'>&nbsp;&nbsp;</td> 
                                 <td padding='0'><font color='111111' size='3'  face='Tahoma'>" . str_replace("  ", "&nbsp;&nbsp;", $inapdrpasien[1]) . "</td> 
@@ -678,8 +728,8 @@ order by tgl_perawatan
                                 <td padding='0' width='30%' align='left'><font color='111111' size='3'  face='Tahoma'>Rp. " . number_format($inapdrpasien[4]) . "</td>  
                               </tr>
                               </table>";
-                    }
-            }
+                        }
+                }
             }
 
 
