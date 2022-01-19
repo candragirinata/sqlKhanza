@@ -176,22 +176,37 @@ group by reg_periksa.no_rawat)g group by g.png_jawab
 
 **********************************request kadek accounting************************************************
 
-select png_jawab, count(JmlPx)as jumlah_pasien,sum(Ralan)as Ralan, sum(Ranap)as Ranap, sum(NominalRalan)as NominalRalan, sum(NominalRanap)as NominalRanap, sum(Total_ranapNrawat)as Total_ranapNrawat, sum(Total)as Total,sum(BPJS)as BPJS, sum(Tanggungan)as Tanggungan,sum(Tunai)as Tunai,sum(Deposit)as Deposit
-from (select penjab.png_jawab, count(distinct  penjab.png_jawab)as JmlPx, count(distinct case status_lanjut when 'Ralan' then 1 else null end)as Ralan,count(distinct case status_lanjut when 'Ranap' then 1 else null end)as Ranap
+select png_jawab, count(JmlPx)as jumlah_pasien,sum(Ralan)as Ralan, sum(Ranap)as Ranap, sum(NominalRalan)as NominalRalan, sum(NominalRanap)as NominalRanap, sum(Total_ranapNrawat)as Total_ranapNrawat, sum(Total)as Total,sum(BPJS)as BPJS, sum(Tanggungan)as Tanggungan,sum(Tunai_inap)as Tunai_inap,sum(Tunai)as Tunai,sum(Deposit)as Deposit
+from (select penjab.png_jawab, count(penjab.png_jawab)as JmlPx, count(case status_lanjut when 'Ralan' then 1 else null end)as Ralan,count( case status_lanjut when 'Ranap' then 1 else null end)as Ranap
 ,sum(if(reg_periksa.status_lanjut='ralan',dpp.sisapiutang,0))as NominalRalan
 ,sum(if(reg_periksa.status_lanjut='ranap',dpp.sisapiutang,0))as NominalRanap
-,sum(dpp.sisapiutang+uangmuka)as Total_ranapNrawat
-,sum(distinct pp.totalpiutang)as Total, sum(if(dpp.nama_bayar = "Piutang BPJS",dpp.totalpiutang, 0))as BPJS, 
-sum(if(dpp.nama_bayar <> "Piutang BPJS",dpp.totalpiutang, 0))as Tanggungan, sum(distinct pp.uangmuka)as Tunai
-,sum(distinct if(reg_periksa.no_rawat = d.no_rawat ,d.besar_deposit, 0))as Deposit
+,sum(dpp.sisapiutang)as Total_ranapNrawat
+,sum(distinct pp.totalpiutang)as Total, sum(if(dpp.kd_pj = "bpj",dpp.totalpiutang, 0))as BPJS, 
+sum(DISTINCT if(dpp.kd_pj <> "bpj",dpp.totalpiutang, 0))as Tanggungan, sum(distinct dni.besar_bayar)as Tunai_inap, sum(distinct dnj.besar_bayar)as Tunai
+,sum(distinct d.besar_deposit)as Deposit
 from reg_periksa 
-inner join pasien on reg_periksa.no_rkm_medis = pasien.no_rkm_medis 
-inner join penjab on reg_periksa.kd_pj = penjab.kd_pj
-inner join detail_piutang_pasien dpp on reg_periksa.no_rawat = dpp.no_rawat 
-inner join piutang_pasien pp on reg_periksa.no_rawat = pp.no_rawat 
+left join pasien on reg_periksa.no_rkm_medis = pasien.no_rkm_medis 
+left join penjab on reg_periksa.kd_pj = penjab.kd_pj
+left join detail_piutang_pasien dpp on reg_periksa.no_rawat = dpp.no_rawat 
+left join piutang_pasien pp on reg_periksa.no_rawat = pp.no_rawat 
+left join detail_nota_inap dni on reg_periksa.no_rawat = dni.no_rawat 
 left join deposit d on reg_periksa.no_rawat = d.no_rawat 
-where reg_periksa.status_lanjut in ('ralan','ranap')
+left join detail_nota_jalan dnj on reg_periksa.no_rawat = dnj.no_rawat 
+where reg_periksa.status_lanjut in ('ralan','ranap') and pp.tgl_piutang between '$P!{GR1}' AND '$P!{GR2}'
 group by reg_periksa.no_rawat)g group by g.png_jawab
+
+
+
+select * from detail_piutang_pasien dpp 
+
+select * from deposit d 
+
+select * from detail_nota_inap
+
+select * from piutang_pasien where tgl_piutang between '$P!{GR1}' AND '$P!{GR2}'
+
+select count(reg_periksa.no_rawat) from reg_periksa inner join poliklinik on reg_periksa.kd_poli=poliklinik.kd_poli inner join nota_jalan on reg_periksa.no_rawat=nota_jalan.no_rawat where reg_periksa.kd_pj='bpj' and concat(nota_jalan.tanggal) between '$P!{GR1}' AND '$P!{GR2}' 
+
 
 ********************************** struk nomor kartu bpjs ************************************************
 
@@ -368,3 +383,7 @@ and rawat_inap_pr.kd_jenis_prw=jns_perawatan_inap.kd_jenis_prw
 select operasi.biaya_omloop,pasien.nm_pasien,paket_operasi.nm_perawatan,
 operasi.tgl_operasi,reg_periksa.kd_pj from operasi inner join reg_periksa inner join pasien inner join paket_operasi 
 inner join penjab on reg_periksa.kd_pj=penjab.kd_pj and operasi.no_rawat=reg_periksa.no_rawat and reg_periksa.no_rkm_medis=pasien.no_rkm_medis and operasi.kode_paket=paket_operasi.kode_paket 
+
+
+
+

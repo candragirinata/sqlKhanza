@@ -214,3 +214,20 @@ and reg_periksa.no_rkm_medis=pasien.no_rkm_medis
 and rawat_inap_pr.kd_jenis_prw=jns_perawatan_inap.kd_jenis_prw 
 and rawat_inap_pr.nip=petugas.nip 
 where rawat_inap_pr.no_rawat = '2022/01/13/000130'
+
+
+
+select akun_bayar.nama_bayar,akun_bayar.kd_rek,detail_nota_inap.besar_bayar,akun_bayar.ppn,detail_nota_inap.besarppn from akun_bayar inner join detail_nota_inap on akun_bayar.nama_bayar=detail_nota_inap.nama_bayar 
+
+
+select ifnull(sum(besar_bayar),0) from akun_bayar inner join detail_nota_inap on akun_bayar.nama_bayar=detail_nota_inap.nama_bayar 
+where detail_nota_inap.no_rawat='2022/01/04/698623'
+
+select detail_nota_inap.nama_bayar from akun_bayar inner join detail_nota_inap on akun_bayar.nama_bayar=detail_nota_inap.nama_bayar 
+where detail_nota_inap.no_rawat='2022/01/04/698623'
+
+select * from detail_piutang_pasien dpp inner join penjab p on dpp.kd_pj = p.kd_pj where dpp.no_rawat = ''
+
+select * from detail_piutang_pasien
+
+and akun_bayar.nama_bayar like ? order by nama_bayar
